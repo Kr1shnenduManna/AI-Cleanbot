@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cleaning Bot</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <!-- Header Section -->
+  <header>
+    <div class="header-container">
+      <div class="logo">
+        <img src="cleaning-logo.svg" alt="Cleaning Bot Logo" class="app-logo">
+        <h1 class="centered-title">Cleaning Bot</h1>
+      </div>
+      <div class="auth-buttons">
+        <div id="user-menu" style="display: none;">
+          <button id="username-btn" class="username-btn">
+            <span id="welcome-text"></span>
+            <span class="dropdown-arrow">▼</span>
+          </button>
+          <div id="dropdown-menu" class="dropdown-menu">
+            <button onclick="logoutUser()">Logout</button>
+          </div>
+        </div>
+        <button id="login-btn" class="auth-btn">Sign up</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Authentication Modal (Hidden by Default) -->
+  <div id="auth-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span id="modal-close" class="modal-close">&times;</span>
+      <div class="tab-header">
+        <button id="tab-signup" class="active">Signup</button>
+        <button id="tab-login">Login</button>
+      </div>
+      <!-- Signup Form -->
+      <div id="signup-section" class="auth-section">
+        <h3>Signup</h3>
+        <input type="text" id="signup-username" placeholder="Username">
+        <input type="email" id="signup-email" placeholder="Email">
+        <input type="password" id="signup-password" placeholder="Password">
+        <button id="signup-submit">Signup</button>
+        <hr>
+        <button id="google-signup-btn">Signup with Google</button>
+      </div>
+      <!-- Login Form -->
+      <div id="login-section" class="auth-section" style="display: none;">
+        <h3>Login</h3>
+        <input type="email" id="login-email" placeholder="Email">
+        <input type="password" id="login-password" placeholder="Password">
+        <button id="login-submit">Login</button>
+        <hr>
+        <button id="google-login-btn">Login with Google</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Container: Sidebar + Chat Panel -->
+  <div class="main-container">
+    <!-- History Panel (Sidebar) -->
+    <div class="history-panel">
+      <div class="history-header">
+        <h2>Chat History</h2>
+        <button id="new-chat-btn"><i class="fas fa-plus"></i> New Chat</button>
+      </div>
+      <ul id="history-list">
+        <!-- Chat history items will be added here -->
+      </ul>
+    </div>
+    
+    <!-- Chat Panel -->
+    <section class="chat-section">
+      <div id="welcome-screen">
+        <h1>Welcome to Cleaning Bot.</h1>
+        <p>How can I help you today?</p>
+      </div>
+      
+      <div id="chat-box" class="chat-box">
+        <!-- Chat messages and placeholder appear here -->
+      </div>
+      
+      <div class="input-area">
+        <div class="input-container">
+          <input type="text" id="user-input" placeholder="Ask me about cleaning..." autocomplete="off" />
+          <button id="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+        
+        <div class="feature-buttons-container">
+          <button class="feature-btn" id="cleaning-tips-btn"><i class="fas fa-broom"></i> Cleaning Tips</button>
+          <button class="feature-btn" id="stain-removal-btn"><i class="fas fa-spray-can"></i> Stain Removal</button>
+          <button class="feature-btn" id="cleaning-schedule-btn"><i class="fas fa-calendar-check"></i> Cleaning Schedule</button>
+          <button class="feature-btn" id="eco-cleaning-btn"><i class="fas fa-recycle"></i> Eco Cleaning</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
