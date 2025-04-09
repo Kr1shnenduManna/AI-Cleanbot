@@ -16,6 +16,10 @@
         <h1 class="centered-title">Cleaning Bot</h1>
       </div>
       <div class="auth-buttons">
+        <button id="scheduler-btn" class="scheduler-btn" onclick="showSchedulerModal()">
+          <i class="fas fa-calendar-alt"></i> 
+          <span id="task-counter" class="task-counter" style="display: none;">0</span>
+        </button>
         <div id="user-menu" style="display: none;">
           <button id="username-btn" class="username-btn">
             <span id="welcome-text"></span>
@@ -100,6 +104,35 @@
     </section>
   </div>
 
+  <!-- Include Scheduler Modal -->
+  <div id="scheduler-modal" class="modal" style="display: none;">
+    <div class="modal-content scheduler-modal-content">
+      <span id="scheduler-close" class="modal-close" onclick="closeSchedulerModal()">&times;</span>
+      <h2>Your Cleaning Schedule</h2>
+      
+      <!-- Add New Task Form -->
+      <div class="add-task-form">
+        <h3>Add New Task</h3>
+        <div class="task-form-inputs">
+          <input type="text" id="new-task-input" placeholder="Enter cleaning task...">
+          <input type="date" id="new-task-date">
+          <input type="time" id="new-task-time" value="09:00">
+          <button onclick="addTaskFromForm()">Add Task</button>
+        </div>
+      </div>
+      
+      <!-- Tasks List -->
+      <div class="scheduled-tasks-container">
+        <h3>Scheduled Tasks</h3>
+        <div id="scheduled-tasks-list" class="tasks-list">
+          <!-- Tasks will be added here dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="script.js"></script>
+  <script src="scheduler.js"></script>
+  <link rel="stylesheet" href="scheduler.css">
 </body>
 </html>

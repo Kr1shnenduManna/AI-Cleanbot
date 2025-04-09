@@ -460,6 +460,9 @@ async function sendMessage() {
     }
   };
   
+  // Check if this is a scheduling request
+  const schedulingResponse = handleSchedulingInChat(message);
+  
   // Fixed temperature value since slider is removed
   const temperature = 0.7;
   
@@ -471,6 +474,12 @@ async function sendMessage() {
     });
     const data = await response.json();
     let replyText = data.reply;
+    
+    // If this was a scheduling request, append the scheduling confirmation
+    if (schedulingResponse) {
+      replyText = schedulingResponse;
+      updateTaskCounter(); // Update the task counter in the header
+    }
     
     replyText = replyText.replace(/###/g, '\n\n');
     replyText = replyText.replace(/-\s/g, '\n- ');
@@ -594,6 +603,19 @@ async function logoutUser() {
     console.error('Logout error:', error);
   }
 }
+// Function to update the task counter in the header
+function updateTaskCounter() {
+  const taskCounter = document.getElementById('task-counter');
+  const upcomingTasks = getUpcomingTasks();
+  
+  if (upcomingTasks.length > 0) {
+    taskCounter.textContent = upcomingTasks.length;
+    taskCounter.style.display = 'flex';
+  } else {
+    taskCounter.style.display = 'none';
+  }
+}
+
 window.addEventListener('load', () => {
   checkUserStatus();
   loadChatHistory();
@@ -607,6 +629,9 @@ window.addEventListener('load', () => {
   } else {
     loadSession(currentSession);
   }
+  
+  // Initialize scheduler
+  updateTaskCounter();
   
   // Registration number is now handled in loadChatHistory function
 });
@@ -630,7 +655,7 @@ document.getElementById('stain-removal-btn').addEventListener('click', function(
 });
 
 document.getElementById('cleaning-schedule-btn').addEventListener('click', function() {
-  insertQuery('Help me create a weekly cleaning schedule');
+  showSchedulerModal();
 });
 
 document.getElementById('eco-cleaning-btn').addEventListener('click', function() {
@@ -688,7 +713,7 @@ document.getElementById('signup-submit').addEventListener('click', async () => {
     const data = await res.json();
     console.log(data);
     
-    if (data.message && data.message.includes('Signup successful')) {
+    if (data.message && data.message.includes('Signup success')) {
       document.getElementById('auth-modal').style.display = 'none';
       checkUserStatus();
       window.location.href = '/';
@@ -713,7 +738,7 @@ document.getElementById('login-submit').addEventListener('click', async () => {
     });
     const data = await res.json();
     console.log(data);
-    if (data.message === 'Login successful') {
+    if (data.message === 'Login success') {
       document.getElementById('auth-modal').style.display = 'none';
       checkUserStatus();
       window.location.href = '/';

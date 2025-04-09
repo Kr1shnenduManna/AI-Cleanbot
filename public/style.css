@@ -5,6 +5,30 @@
   box-sizing: border-box;
 }
 
+/* Custom Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333333;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #444444;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #333333 #1a1a1a;
+}
+
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #0f0f0f;
@@ -60,10 +84,17 @@ header {
   display: inline-block;
 }
 
+.auth-buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
 .auth-buttons button {
   background: none;
   color: #ffffff;
-  border: 1px solid #ffffff;
+  border: 1px solid #000000;
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
@@ -106,8 +137,8 @@ header {
 }
 
 .history-header button {
-  background: #0071e3;
-  color: #fff;
+  background: #000000;
+  color: var(--button-text);
   border: none;
   padding: 8px 12px;
   border-radius: 6px;
@@ -119,7 +150,8 @@ header {
 }
 
 .history-header button:hover {
-  background: #0062c4;
+  background: #ffffff;
+  color: #000000
 }
 
 .history-panel ul {
@@ -367,7 +399,15 @@ header {
 }
 
 #send-btn.stop-btn {
-  color: #ff3b30;
+  background: rgb(255, 255, 255);
+  color: #000000;
+  width: auto;
+  height: auto;
+  border: 1px solid #ffffff;
+  padding: 0.5 px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
 /* Feature Buttons */
