@@ -8,8 +8,7 @@ const bcrypt = require('bcrypt');
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,       
     clientSecret: process.env.GOOGLE_CLIENT_SECRET, 
-    callbackURL: process.env.GOOGLE_CALLBACK_URL || "http://localhost:4000/auth/google/callback"
-
+    callbackURL: "http://localhost:4000/auth/google/callback"  
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
@@ -44,7 +43,7 @@ passport.use(new LocalStrategy({ usernameField: 'email' },
       if (!user.password) {
         return done(null, false, { message: 'User registered with Google. Please login using Google.' });
       }
-      const isMatch = await bcrypt.compare(password, user.password);
+      const isMatch = await user.comparePassword(password);
       if (!isMatch) {
         return done(null, false, { message: 'Incorrect password.' });
       }

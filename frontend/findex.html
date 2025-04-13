@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grok AI</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="header-left">
+        <div class="logo-container">
+          <img src="" alt="Grok" class="grok-logo">
+          <span>Grok</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="icon-button"><i class="fas fa-columns"></i></button>
+        <button class="icon-button"><i class="fas fa-cog"></i></button>
+        <button class="sign-up-btn">Sign up</button>
+        <button class="sign-in-btn">Sign in</button>
+      </div>
+    </header>
+
+    <div class="chat-container">
+      <div id="welcome-screen" class="welcome-screen">
+        <h1>Welcome to Grok.</h1>
+        <p>How can I help you today?</p>
+      </div>
+
+      <div class="chat-messages" id="chat-messages">
+        <!-- Messages will be added here dynamically -->
+      </div>
+
+      <div class="chat-input-area">
+        <div class="input-container">
+          <button class="attachment-btn"><i class="fas fa-paperclip"></i></button>
+          <input type="text" id="user-input" placeholder="What do you want to know?">
+          <div class="input-buttons">
+            <button class="tool-button deep-search-btn"><i class="fas fa-search"></i> DeepSearch</button>
+            <button class="tool-button think-btn"><i class="fas fa-lightbulb"></i> Think</button>
+            <div class="model-selector">
+              <span>Grok 3</span>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <button id="send-button"><i class="fas fa-arrow-up"></i></button>
+          </div>
+        </div>
+
+        <div class="tool-buttons">
+          <button class="feature-btn"><i class="fas fa-search"></i> Research</button>
+          <button class="feature-btn"><i class="fas fa-image"></i> Create images</button>
+          <button class="feature-btn"><i class="fas fa-book"></i> How to</button>
+          <button class="feature-btn"><i class="fas fa-chart-bar"></i> Analyze</button>
+          <button class="feature-btn"><i class="fas fa-code"></i> Code</button>
+        </div>
+
+        <div class="footer">
+          <p>Switch to Personas</p>
+          <p class="terms">By messaging Grok, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

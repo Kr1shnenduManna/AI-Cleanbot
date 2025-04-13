@@ -1,4 +1,3 @@
-// Array of dynamic placeholder quotes
 const placeholderQuotes = [
   "Dust is inevitable, but a little sparkle makes all the difference! - Your Cleaning Guru",
   "Every speck of dust has a story. Let's clean up yours! - The AI Cleaning Maestro",
@@ -14,11 +13,9 @@ function getRandomPlaceholder() {
   return placeholderQuotes[index];
 }
 
-// Global variable to track current typing interval
 let currentTypingInterval = null;
 
 function simulateTyping(text, element, callback) {
-  // Clear any existing typing interval
   if (currentTypingInterval) {
     clearInterval(currentTypingInterval);
     currentTypingInterval = null;
@@ -27,36 +24,29 @@ function simulateTyping(text, element, callback) {
   element.innerHTML = ''; 
   let index = 0;
   
-  // Create timestamp element but don't append it until typing is complete
   const timestamp = document.createElement('div');
   timestamp.className = 'message-timestamp';
   timestamp.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-  timestamp.style.display = 'none'; // Hide timestamp initially
+  timestamp.style.display = 'none'; 
   
-  // Create content element for typing effect
   const contentElement = document.createElement('div');
   contentElement.className = 'message-content';
   
-  // Add typing indicator
   const typingIndicator = document.createElement('div');
   typingIndicator.className = 'typing-indicator';
   typingIndicator.innerHTML = '<span></span><span></span><span></span>';
   element.appendChild(typingIndicator);
   
-  // Ensure scroll to bottom when typing starts
   const chatBox = document.getElementById('chat-box');
-  // Ensure scrolling works properly
   ensureScrollToBottom();
   
   currentTypingInterval = setInterval(() => {
     if (index === 0) {
-      // Remove typing indicator when starting to show text
       element.removeChild(typingIndicator);
       element.appendChild(contentElement);
-      element.appendChild(timestamp); // Append timestamp but it's still hidden
+      element.appendChild(timestamp); 
     }
     
-    // Process markdown-like formatting with improved spacing
     if (index < text.length) {
       if (text.substring(index).startsWith('\n')) {
         contentElement.innerHTML += '<br>';
@@ -71,21 +61,17 @@ function simulateTyping(text, element, callback) {
         contentElement.innerHTML += text.charAt(index);
         index++;
       }
-      // Scroll to bottom as text is being typed
-      // Ensure scrolling works properly
   ensureScrollToBottom();
     }
     
     if (index >= text.length) {
       clearInterval(currentTypingInterval);
       currentTypingInterval = null;
-      timestamp.style.display = 'block'; // Show timestamp after typing is complete
-      // Ensure scroll to bottom when typing completes
-      // Ensure scrolling works properly
+      timestamp.style.display = 'block'; 
   ensureScrollToBottom();
       if (callback) callback();
     }
-  }, 28); // Fast typing speed for smooth effect
+  }, 28); 
 }
 
 let sessions = JSON.parse(localStorage.getItem('chatSessions')) || [];
@@ -110,7 +96,59 @@ function saveSessions() {
   localStorage.setItem('chatSessions', JSON.stringify(sessions));
 }
 
+function analyzeChatForTitle(conversation) {
+  const userMessages = conversation.filter(msg => msg.role === 'user');
+  
+  if (userMessages.length === 0) return 'New Chat';
+  
+  const firstUserMsg = userMessages[0].content;
+  let defaultTitle = firstUserMsg.substring(0, 30) + (firstUserMsg.length > 30 ? '...' : '');
+  
+  const schedulingKeywords = /schedule|task|clean|reminder|appointment/i;
+  const datePatterns = /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}|tomorrow|next week|monday|tuesday|wednesday|thursday|friday|saturday|sunday)/i;
+  const recurringPatterns = /weekly|daily|monthly|every day|each week/i;
+  
+  const allUserContent = userMessages.map(msg => msg.content).join(' ');
+  
+  if (schedulingKeywords.test(allUserContent)) {
+    if (recurringPatterns.test(allUserContent)) {
+      const match = allUserContent.match(recurringPatterns);
+      if (match) {
+        return `${match[0].charAt(0).toUpperCase() + match[0].slice(1)} Cleaning Schedule`;
+      }
+    }
+    
+    if (datePatterns.test(allUserContent)) {
+      const match = allUserContent.match(datePatterns);
+      if (match) {
+        return `Cleaning Schedule for ${match[0]}`;
+      }
+    }
+    
+    if (/clean|dust|vacuum|mop|wash|scrub/i.test(allUserContent)) {
+      return 'Cleaning Task Schedule';
+    }
+    
+    return 'Scheduled Tasks';
+  }
+  
+  if (/how to|tips|advice|best way|recommend/i.test(allUserContent)) {
+    if (/stain|remove|dirt|spill/i.test(allUserContent)) {
+      return 'Stain Removal Advice';
+    }
+    if (/clean|dust|vacuum|mop|wash|scrub/i.test(allUserContent)) {
+      return 'Cleaning Tips & Advice';
+    }
+  }
+  
+  return defaultTitle;
+}
+
 function updateSession() {
+  if (currentSession.title === 'New Chat' && currentSession.conversation.length > 1) {
+    currentSession.title = analyzeChatForTitle(currentSession.conversation);
+  }
+  
   const index = sessions.findIndex(s => s.sessionId === currentSession.sessionId);
   if (index !== -1) {
     sessions[index] = currentSession;
@@ -184,13 +222,11 @@ function loadChatHistory() {
   const historyList = document.getElementById('history-list');
   historyList.innerHTML = '';
   
-  // Group sessions by date
   const groupedSessions = {};
   const today = new Date().toDateString();
   const yesterday = new Date(Date.now() - 86400000).toDateString();
   
   sessions.forEach(session => {
-    // Create date string for grouping
     const sessionDate = session.createdAt ? new Date(session.createdAt).toDateString() : today;
     let dateGroup;
     
@@ -209,7 +245,6 @@ function loadChatHistory() {
     groupedSessions[dateGroup].push(session);
   });
   
-  // Sort date groups (Today, Yesterday, then other dates in descending order)
   const sortedGroups = Object.keys(groupedSessions).sort((a, b) => {
     if (a === 'Today') return -1;
     if (b === 'Today') return 1;
@@ -218,44 +253,32 @@ function loadChatHistory() {
     return new Date(b) - new Date(a);
   });
   
-  // Create date sections and add sessions
   sortedGroups.forEach(dateGroup => {
-    // Add date section header
     const dateHeader = document.createElement('div');
     dateHeader.className = 'history-date-section';
     dateHeader.textContent = dateGroup;
     historyList.appendChild(dateHeader);
     
-    // Add sessions for this date
     groupedSessions[dateGroup].forEach(session => {
       const li = document.createElement('li');
       li.className = 'chat-session-item';
       li.setAttribute('data-session-id', session.sessionId);
     
-      // Create title and date elements
       const titleContainer = document.createElement('div');
       titleContainer.className = 'chat-session-title-container';
       
       const titleSpan = document.createElement('span');
       titleSpan.className = 'chat-session-title';
       
-      // Generate a title based on first user message if available
       if (session.title === 'New Chat' && session.conversation.length > 1) {
-        const firstUserMsg = session.conversation.find(msg => msg.role === 'user');
-        if (firstUserMsg) {
-          // Use first 30 chars of first message as title
-          const title = firstUserMsg.content.substring(0, 30) + (firstUserMsg.content.length > 30 ? '...' : '');
-          titleSpan.textContent = title;
-        } else {
-          titleSpan.textContent = session.title;
-        }
+        const chatTitle = analyzeChatForTitle(session.conversation);
+        titleSpan.textContent = chatTitle;
       } else {
         titleSpan.textContent = session.title;
       }
       
       titleContainer.appendChild(titleSpan);
       
-      // Add date if not Today/Yesterday
       if (dateGroup !== 'Today' && dateGroup !== 'Yesterday') {
         const dateSpan = document.createElement('span');
         dateSpan.className = 'chat-session-date';
@@ -319,13 +342,10 @@ function loadChatHistory() {
     });
   });
   
-  // Ensure registration number is always displayed at the bottom of history panel
   const historyPanel = document.querySelector('.history-panel');
   
-  // Make sure history panel has position relative for absolute positioning to work
   historyPanel.style.position = 'relative';
   
-  // Add registration number if it doesn't exist
   if (!document.querySelector('.history-registration-number')) {
     const regNumberDiv = document.createElement('div');
     regNumberDiv.className = 'history-registration-number';
@@ -338,12 +358,9 @@ function loadChatHistory() {
     historyPanel.appendChild(regNumberDiv);
   }
 }
-// Helper function to ensure scrolling works consistently
 function ensureScrollToBottom() {
   const chatBox = document.getElementById('chat-box');
-  // Use setTimeout to ensure this happens after DOM updates
   setTimeout(() => {
-    // Scroll to the bottom of the chat box
     chatBox.scrollTop = chatBox.scrollHeight;
   }, 10);
 }
@@ -353,7 +370,6 @@ function loadSession(session) {
   const chatBox = document.getElementById('chat-box');
   const welcomeScreen = document.getElementById('welcome-screen');
   
-  // Hide welcome screen when loading a session
   welcomeScreen.style.display = 'none';
   
   removePlaceholder();
@@ -371,10 +387,8 @@ function loadSession(session) {
     if (msg.role === 'user') {
       contentDiv.innerHTML = `You: ${msg.content}`;
     } else {
-      // Check if the message already starts with the bot name to prevent duplication
       let botContent = msg.content;
       if (botContent.startsWith(`${botName}:`)) {
-        // If it already has the bot name prefix, ensure there's no duplication
         botContent = botContent.replace(new RegExp(`^${botName}:\s*${botName}:`, 'i'), `${botName}:`);
         contentDiv.innerHTML = botContent.replace(/\n\n/g, '<br><br>').replace(/\n- /g, '<br>• ');
       } else {
@@ -390,15 +404,12 @@ function loadSession(session) {
     msgDiv.appendChild(timestamp);
     chatBox.appendChild(msgDiv);
     
-    // Show timestamps with a staggered delay to simulate the chat loading
     setTimeout(() => {
       timestamp.style.display = 'block';
-      // Ensure scrolling after each message timestamp appears
       ensureScrollToBottom();
     }, 300 * (index + 1));
   });
   
-  // Initial scroll to bottom
   ensureScrollToBottom();
 }
 
@@ -410,12 +421,10 @@ async function sendMessage() {
   const message = userInput.value.trim();
   if (!message) return;
   
-  // Hide welcome screen on first message
   welcomeScreen.style.display = 'none';
   
   removePlaceholder();
   
-  // Create user message with timestamp
   const userMsgDiv = document.createElement('div');
   userMsgDiv.className = 'user-msg';
   
@@ -426,13 +435,12 @@ async function sendMessage() {
   const timestamp = document.createElement('div');
   timestamp.className = 'message-timestamp';
   timestamp.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-  timestamp.style.display = 'none'; // Hide timestamp initially
+  timestamp.style.display = 'none'; 
   
   userMsgDiv.appendChild(userContent);
   userMsgDiv.appendChild(timestamp);
   chatBox.appendChild(userMsgDiv);
   
-  // Show timestamp after a brief delay to simulate message being sent
   setTimeout(() => {
     timestamp.style.display = 'block';
   }, 500);
@@ -440,47 +448,53 @@ async function sendMessage() {
   currentSession.conversation.push({ role: 'user', content: message });
   userInput.value = '';
   
-  // Change send button to stop button
   sendBtn.innerHTML = '<i class="fas fa-stop"></i>';
   sendBtn.classList.add('stop-btn');
   
-  // Store original onclick function
   const originalOnClick = sendBtn.onclick;
   
-  // Change button function to stop typing
   sendBtn.onclick = () => {
     if (currentTypingInterval) {
       clearInterval(currentTypingInterval);
       currentTypingInterval = null;
       
-      // Reset button back to send
       sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
       sendBtn.classList.remove('stop-btn');
       sendBtn.onclick = originalOnClick;
     }
   };
   
-  // Fixed temperature value since slider is removed
-  const temperature = 0.7;
+  const schedulingResponse = handleSchedulingInChat(message);
+  
+  const temperature = getCurrentTemperature();
   
   try {
-    const response = await fetch('http://localhost:4000/api/chat', {
+    const apiBaseUrl = window.location.hostname === 'localhost'
+      ? 'http://localhost:4000'
+      : ''; // empty means same domain in production
+
+    const response = await fetch(`${apiBaseUrl}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message, temperature })
     });
+
     const data = await response.json();
     let replyText = data.reply;
+    
+    if (schedulingResponse) {
+      replyText = schedulingResponse;
+      updateTaskCounter(); 
+    }
     
     replyText = replyText.replace(/###/g, '\n\n');
     replyText = replyText.replace(/-\s/g, '\n- ');
     
-    // Fix the duplicate 'Anna: Anna:' issue by checking if the reply already contains the bot name
     if (replyText.startsWith(`${botName}:`)) {
-      // If it already has the bot name prefix, ensure there's no duplication
       replyText = replyText.replace(new RegExp(`^${botName}:\s*${botName}:`, 'i'), `${botName}:`);
+    } else if (replyText.toLowerCase().startsWith('hello') || replyText.toLowerCase().startsWith('hi')) {
+      replyText = `${botName}: ${replyText}`;
     } else {
-      // If it doesn't have the bot name prefix, add it
       replyText = `${botName}: ${replyText}`;
     }
     
@@ -489,7 +503,6 @@ async function sendMessage() {
     chatBox.appendChild(botMsgDiv);
     
     simulateTyping(replyText, botMsgDiv, () => {
-      // Reset button back to send when typing is complete
       sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
       sendBtn.classList.remove('stop-btn');
       sendBtn.onclick = originalOnClick;
@@ -498,7 +511,6 @@ async function sendMessage() {
       updateSession();
     });
   } catch (error) {
-    // Reset button back to send on error
     sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
     sendBtn.classList.remove('stop-btn');
     sendBtn.onclick = originalOnClick;
@@ -518,7 +530,6 @@ async function sendMessage() {
     errDiv.appendChild(timestamp);
     chatBox.appendChild(errDiv);
   }
-  // Ensure scrolling works properly
   ensureScrollToBottom();
 }
 
@@ -594,11 +605,108 @@ async function logoutUser() {
     console.error('Logout error:', error);
   }
 }
+function updateTaskCounter() {
+  const taskCounter = document.getElementById('task-counter');
+  const upcomingTasks = getUpcomingTasks();
+  
+  if (upcomingTasks.length > 0) {
+    taskCounter.textContent = upcomingTasks.length;
+    taskCounter.style.display = 'flex';
+  } else {
+    taskCounter.style.display = 'none';
+  }
+}
+
+function handleSchedulingInChat(message) {
+  const schedulingRegex = /schedule|remind|task|appointment|set up|plan|on\s+\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}|weekly|daily|monthly|tomorrow|next week/i;
+  
+  if (!schedulingRegex.test(message)) return null;
+  
+  let date = 'today';
+  let time = '9:00 AM';
+  let taskDescription = message;
+  let isRecurring = false;
+  let recurringPattern = '';
+  
+  const dateRegex = /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i;
+  const dateMatch = message.match(dateRegex);
+  
+  if (dateMatch) {
+    date = dateMatch[1];
+    const dateParts = date.split(/[\/\-]/);
+    if (dateParts.length === 3) {
+      const dateObj = new Date(dateParts[2].length === 2 ? `20${dateParts[2]}` : dateParts[2], dateParts[0] - 1, dateParts[1]);
+      date = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    }
+  }
+  
+  const timeRegex = /(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i;
+  const timeMatch = message.match(timeRegex);
+  if (timeMatch) {
+    time = timeMatch[1];
+  }
+  
+  const weeklyRegex = /weekly|every\s+week|each\s+week/i;
+  const dailyRegex = /daily|every\s+day|each\s+day/i;
+  const monthlyRegex = /monthly|every\s+month|each\s+month/i;
+  
+  if (weeklyRegex.test(message)) {
+    isRecurring = true;
+    recurringPattern = 'weekly';
+  } else if (dailyRegex.test(message)) {
+    isRecurring = true;
+    recurringPattern = 'daily';
+  } else if (monthlyRegex.test(message)) {
+    isRecurring = true;
+    recurringPattern = 'monthly';
+  }
+  
+  taskDescription = taskDescription
+    .replace(/schedule|remind me to|set up|plan/gi, '')
+    .replace(dateRegex, '')
+    .replace(timeRegex, '')
+    .replace(weeklyRegex, '')
+    .replace(dailyRegex, '')
+    .replace(monthlyRegex, '')
+    .replace(/on|at|for|by/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  
+  const newTask = addScheduledTask(taskDescription, date, time, isRecurring, recurringPattern);
+  
+  let responseMessage = `${botName}: I've added "${taskDescription}" to your schedule for ${date}`;
+  if (time) responseMessage += ` at ${time}`;
+  if (isRecurring) responseMessage += `. This task will repeat ${recurringPattern}.`;
+  responseMessage += ".\n\nYou can view and manage all your scheduled tasks by clicking the calendar icon in the top right corner.";
+  
+  return responseMessage;
+}
+
+function setTemperature(temp) {
+  const dropdown = document.getElementById('temperature-dropdown');
+  
+  temp = Math.max(0.3, Math.min(1.0, parseFloat(temp)));
+  
+  let closestOption;
+  if (temp <= 0.3) closestOption = '0.3';
+  else if (temp <= 0.7) closestOption = '0.7';
+  else closestOption = '1.0';
+  
+  dropdown.value = closestOption;
+  
+  localStorage.setItem('chatTemperature', closestOption);
+  
+  console.log('Temperature set to:', closestOption);
+}
+
+function getCurrentTemperature() {
+  return parseFloat(localStorage.getItem('chatTemperature') || 0.7);
+}
+
 window.addEventListener('load', () => {
   checkUserStatus();
   loadChatHistory();
   
-  // Show welcome screen by default
   const welcomeScreen = document.getElementById('welcome-screen');
   welcomeScreen.style.display = 'flex';
   
@@ -608,8 +716,57 @@ window.addEventListener('load', () => {
     loadSession(currentSession);
   }
   
+  updateTaskCounter();
+  
+  const temperatureDropdown = document.getElementById('temperature-dropdown');
+  
+  const tempDropdownContainer = document.querySelector('.temperature-dropdown-container');
+  
+  tempDropdownContainer.addEventListener('click', function(e) {
+    if (e.target !== temperatureDropdown) {
+      e.preventDefault();
+      this.classList.toggle('active');
+      
+      if (this.classList.contains('active')) {
+        temperatureDropdown.style.display = 'block';
+        temperatureDropdown.focus();
+      }
+    }
+    e.stopPropagation();
+  });
+  
+  // Close dropdown when clicking elsewhere
+  document.addEventListener('click', function() {
+    tempDropdownContainer.classList.remove('active');
+    temperatureDropdown.style.display = 'none';
+  });
+
+  // Handle dropdown option selection
+  temperatureDropdown.addEventListener('change', function() {
+    const temp = parseFloat(this.value);
+    setTemperature(temp);
+    console.log('Temperature set to:', temp);
+    tempDropdownContainer.classList.remove('active');
+    temperatureDropdown.style.display = 'none';
+  });
+  
+  // Close dropdown when losing focus
+  temperatureDropdown.addEventListener('blur', function() {
+    setTimeout(() => {
+      tempDropdownContainer.classList.remove('active');
+      temperatureDropdown.style.display = 'none';
+    }, 200); // Small delay to allow for option selection
+  });
+
+  
+  // Set initial temperature from localStorage
+  const savedTemp = getCurrentTemperature();
+  setTemperature(savedTemp);
+  
   // Registration number is now handled in loadChatHistory function
 });
+
+// Temperature slider is always visible, no need to close it
 document.getElementById('user-input').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') sendMessage();
 });
@@ -630,7 +787,7 @@ document.getElementById('stain-removal-btn').addEventListener('click', function(
 });
 
 document.getElementById('cleaning-schedule-btn').addEventListener('click', function() {
-  insertQuery('Help me create a weekly cleaning schedule');
+  showSchedulerModal();
 });
 
 document.getElementById('eco-cleaning-btn').addEventListener('click', function() {
@@ -688,7 +845,7 @@ document.getElementById('signup-submit').addEventListener('click', async () => {
     const data = await res.json();
     console.log(data);
     
-    if (data.message && data.message.includes('Signup successful')) {
+    if (data.message && data.message.includes('Signup success')) {
       document.getElementById('auth-modal').style.display = 'none';
       checkUserStatus();
       window.location.href = '/';
@@ -713,7 +870,7 @@ document.getElementById('login-submit').addEventListener('click', async () => {
     });
     const data = await res.json();
     console.log(data);
-    if (data.message === 'Login successful') {
+    if (data.message === 'Login success') {
       document.getElementById('auth-modal').style.display = 'none';
       checkUserStatus();
       window.location.href = '/';
