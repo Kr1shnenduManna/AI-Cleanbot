@@ -300,7 +300,7 @@ header {
   margin-bottom: 16px;
   font-weight: 600;
   background: linear-gradient(90deg, #0071e3, #00a2ff);
-  
+  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
