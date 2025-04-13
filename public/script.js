@@ -467,11 +467,16 @@ async function sendMessage() {
   const temperature = 0.7;
   
   try {
-    const response = await fetch('/api/chat', {
+    const apiBaseUrl = window.location.hostname === 'localhost'
+      ? 'http://localhost:4000'
+      : ''; // empty means same domain in production
+
+    const response = await fetch(`${apiBaseUrl}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message, temperature })
     });
+
     const data = await response.json();
     let replyText = data.reply;
     
